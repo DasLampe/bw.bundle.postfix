@@ -1,0 +1,5 @@
+user = ${node.metadata.get('postfix', {}).get('database', {}).get('username', 'vmail')}
+password = ${node.metadata.get('postfix', {}).get('database', {}).get('password', repo.libs.pw.get("mysql_user_vmail_{}".format(node.name)))}
+dbname = ${node.metadata.get('postfix', {}).get('database', {}).get('database', 'vmail')}
+hosts = ${node.metadata.get('postfix', {}).get('database', {}).get('host', '127.0.0.1')}
+query = SELECT policy, params FROM tlspolicies WHERE domain = '%s'
