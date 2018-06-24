@@ -3,6 +3,12 @@ global node
 # noinspection PyGlobalUndefined
 global repo
 
+mysql_user = node.metadata.get('postfix', {}).get('database', {}).get('user', 'vmail')
+mysql_password = node.metadata.get('postfix', {}).get('database', {}).\
+    get('password', repo.libs.pw.get("mysql_{}_user_{}".format(mysql_user, node.name)))
+mysql_host = node.metadata.get('postfix', {}).get('database', {}).get('host', '127.0.0.1')
+mysql_db = node.metadata.get('postfix', {}).get('database', {}).get('db', 'vmail')
+
 
 pkg_apt = {
     'postfix': {},
@@ -57,6 +63,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
     '/etc/postfix/virtual/aliases.cf': {
         'source': 'etc/postfix/virtual/aliases.cf',
@@ -64,6 +76,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
     '/etc/postfix/virtual/domains.cf': {
         'source': 'etc/postfix/virtual/domains.cf',
@@ -71,6 +89,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
     '/etc/postfix/virtual/recipient-access.cf': {
         'source': 'etc/postfix/virtual/recipient-access.cf',
@@ -78,6 +102,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
     '/etc/postfix/virtual/sender-login-maps.cf': {
         'source': 'etc/postfix/virtual/sender-login-maps.cf',
@@ -85,6 +115,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
     '/etc/postfix/virtual/tls-policy.cf': {
         'source': 'etc/postfix/virtual/tls-policy.cf',
@@ -92,6 +128,12 @@ files = {
         'mode': '0640',
         'owner': 'root',
         'group': 'root',
+        'context': {
+            'mysql_user': mysql_user,
+            'mysql_password': mysql_password,
+            'mysql_db': mysql_db,
+            'mysql_host': mysql_host,
+        }
     },
 
     # Place SQL-Structure file
@@ -127,12 +169,6 @@ else:
     }
 
 # Create Database and user
-mysql_user = node.metadata.get('postfix', {}).get('database', {}).get('user', 'vmail')
-mysql_password = node.metadata.get('postfix', {}).get('database', {}).\
-    get('password', repo.libs.pw.get("mysql_{}_user_{}".format(mysql_user, node.name)))
-mysql_host = node.metadata.get('postfix', {}).get('database', {}).get('host', 'localhost')
-mysql_db = node.metadata.get('postfix', {}).get('database', {}).get('db', 'vmail')
-
 if mysql_host == 'localhost' or mysql_host == '127.0.0.1':
     mysql_users = {
         mysql_user: {

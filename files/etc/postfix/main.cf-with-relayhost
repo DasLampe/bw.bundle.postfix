@@ -46,7 +46,7 @@ inet_interfaces = ${' '.join(node.metadata.get('postfix', {}).get('interfaces', 
 inet_protocols = all
 
 
-virtual_alias_maps = mysql:/etc/postfix/sql/aliases.cf
-virtual_mailbox_maps = mysql:/etc/postfix/sql/accounts.cf
-virtual_mailbox_domains = mysql:/etc/postfix/sql/domains.cf
+virtual_alias_maps = mysql:/etc/postfix/virtual/aliases.cf
+virtual_mailbox_maps = mysql:/etc/postfix/virtual/accounts.cf
+virtual_mailbox_domains = mysql:/etc/postfix/virtual/domains.cf
 local_recipient_maps = $virtual_mailbox_maps
