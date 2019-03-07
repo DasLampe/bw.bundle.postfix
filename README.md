@@ -27,10 +27,14 @@ Config based on [Mailserver mit Dovecot, Postfix, MySQL und Rspamd unter Debian 
 
 ## Dependencies
 - [MySQL via bundlewrap](https://github.com/DasLampe/bw.bundle.mysql)
+- [pkg_wrapper for Bundlewrap](https://github.com/DasLampe/bw.item.pkg_wrapper)
 
 ## Suggestions
-- [rspamd via bundlewrap](https://github.com/DasLampe/bw.bundle.rspamd)
+- [Rspamd via bundlewrap](https://github.com/DasLampe/bw.bundle.rspamd)
 - [Dovecot via bundlewrap](https://github.com/DasLampe/bw.bundle.dovecot)
 
 ## Known Issues
 - MySQL Host can only be localhost (or 127.0.0.1)
+
+## Author
+André Flemming <daslampe@lano-crew.org>
