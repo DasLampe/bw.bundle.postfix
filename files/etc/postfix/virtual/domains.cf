@@ -1,5 +1,0 @@
-user = ${mysql_user}
-password = ${mysql_password}
-dbname = ${mysql_db}
-hosts = ${mysql_host}
-query = SELECT domain FROM domains WHERE domain='%s'

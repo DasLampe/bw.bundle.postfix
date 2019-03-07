@@ -1,0 +1,5 @@
+user = ${mysql_user}
+password = ${mysql_password}
+hosts = ${mysql_host}
+dbname = ${mysql_db}
+query = select if(sendonly = true, 'REJECT', 'OK') AS access from accounts where username = '%u' and domain = '%d' and enabled = true LIMIT 1;

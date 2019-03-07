@@ -1,5 +1,0 @@
-user = ${mysql_user}
-password = ${mysql_password}
-dbname = ${mysql_db}
-hosts = ${mysql_host}
-query = select concat(destination_username, '@', destination_domain) as destinations from aliases where source_username = '%u' and source_domain = '%d' and enabled = true;

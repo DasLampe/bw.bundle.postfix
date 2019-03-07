@@ -1,0 +1,5 @@
+user = ${mysql_user}
+password = ${mysql_password}
+hosts = ${mysql_host}
+dbname = ${mysql_db}
+query = SELECT domain FROM domains WHERE domain='%s'

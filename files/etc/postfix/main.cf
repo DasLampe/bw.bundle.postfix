@@ -1,20 +1,21 @@
 ##
 ## Netzwerkeinstellungen
 ##
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 ${' '.join(mynetworks)}
+inet_interfaces = all
+myhostname = ${myhostname}
+mydestination = ${mydestination}
 
-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 ${" ".join(node.metadata.get("postfix", {}).get("networks", []))}
-inet_interfaces = 127.0.0.1, ::1, ${','.join(node.metadata['interfaces'][node.metadata['main_interface']]['ip_addresses'])}
-myhostname = ${node.hostname}
 
 ##
 ## Mail-Queue Einstellungen
 ##
 
-maximal_queue_lifetime = 1h
-bounce_queue_lifetime = 1h
-maximal_backoff_time = 15m
-minimal_backoff_time = 5m
-queue_run_delay = 5m
+maximal_queue_lifetime = ${max_queue_lifetime}
+bounce_queue_lifetime = ${bounce_queue_lifetime}
+maximal_backoff_time = ${max_backoff_time}
+minimal_backoff_time = ${min_backoff_time}
+queue_run_delay = ${queue_run_delay}
 
 
 ##
@@ -27,49 +28,43 @@ tls_high_cipherlist = EDH+CAMELLIA:EDH+aRSA:EECDH+aRSA+AESGCM:EECDH+aRSA+SHA256:
 
 ### Ausgehende SMTP-Verbindungen (Postfix als Sender)
 
-#smtp_tls_security_level = dane
-#smtp_dns_support_level = dnssec
-#smtp_tls_policy_maps = mysql:/etc/postfix/sql/tls-policy.cf
-<%text>
-#smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-</%text>
-#smtp_tls_protocols = !SSLv2, !SSLv3
-#smtp_tls_ciphers = high
-#smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+smtp_tls_security_level = dane
+smtp_dns_support_level = dnssec
+smtp_tls_policy_maps = mysql:/etc/postfix/sql/tls-policy.cf
+smtp_tls_session_cache_database = btree:${"${data_directory}"}/smtp_scache
+smtp_tls_protocols = !SSLv2, !SSLv3
+smtp_tls_ciphers = high
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 
 
 ### Eingehende SMTP-Verbindungen
 
-% if node.metadata.get('postfix', {}).get('incomingTls', False):
 smtpd_tls_security_level = may
 smtpd_tls_protocols = !SSLv2, !SSLv3
 smtpd_tls_ciphers = high
-<%text>
-smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
-</%text>
-smtpd_tls_cert_file=/etc/letsencrypt/live/${node.hostname}/fullchain.pem
-smtpd_tls_key_file=/etc/letsencrypt/live/${node.hostname}/privkey.pem
-%endif
+smtpd_tls_session_cache_database = btree:${"${data_directory}"}/smtpd_scache
+
+smtpd_tls_cert_file=${smtpd_tls_cert_file}
+smtpd_tls_key_file=${smtpd_tls_key_file}
 
 
 ##
 ## Lokale Mailzustellung an Dovecot
 ##
 
-#virtual_transport = lmtp:unix:private/dovecot-lmtp
+virtual_transport = lmtp:unix:private/dovecot-lmtp
 
 
 ##
 ## Spamfilter und DKIM-Signaturen via Rspamd
 ##
-
-#smtpd_milters = inet:localhost:11332
-#non_smtpd_milters = inet:localhost:11332
-#milter_protocol = 6
-#milter_mail_macros =  i {mail_addr} {client_addr} {client_name} {auth_authen}
-#milter_default_action = accept
-
-
+% if rspamd:
+smtpd_milters = inet:localhost:11332
+non_smtpd_milters = $smtpd_milters
+milter_protocol = 6
+milter_mail_macros =  i {mail_addr} {client_addr} {client_name} {auth_authen}
+milter_default_action = accept
+%endif
 
 ##
 ## Server Restrictions für Clients, Empfänger und Relaying
@@ -77,21 +72,21 @@ smtpd_tls_key_file=/etc/letsencrypt/live/${node.hostname}/privkey.pem
 ##
 
 ### Bedingungen, damit Postfix als Relay arbeitet (für Clients)
-#smtpd_relay_restrictions =      reject_non_fqdn_recipient
-#                                reject_unknown_recipient_domain
-#                                permit_mynetworks
-#                                reject_unauth_destination
+smtpd_relay_restrictions =      reject_non_fqdn_recipient
+                                reject_unknown_recipient_domain
+                                permit_mynetworks
+                                reject_unauth_destination
 
 
 ### Bedingungen, damit Postfix ankommende E-Mails als Empfängerserver entgegennimmt (zusätzlich zu relay-Bedingungen)
 ### check_recipient_access prüft, ob ein account sendonly ist
-#smtpd_recipient_restrictions = check_recipient_access mysql:/etc/postfix/sql/recipient-access.cf
+smtpd_recipient_restrictions = check_recipient_access mysql:/etc/postfix/sql/recipient-access.cf
 
 
 ### Bedingungen, die SMTP-Clients erfüllen müssen (sendende Server)
-#smtpd_client_restrictions =     permit_mynetworks
-#                                check_client_access hash:/etc/postfix/without_ptr
-#                                reject_unknown_client_hostname
+smtpd_client_restrictions =     permit_mynetworks
+                                check_client_access hash:/etc/postfix/without_ptr
+                                reject_unknown_client_hostname
 
 
 ### Wenn fremde Server eine Verbindung herstellen, müssen sie einen gültigen Hostnamen im HELO haben.
@@ -119,37 +114,30 @@ mua_client_restrictions = permit_mynetworks,permit_sasl_authenticated,reject
 ##
 
 ### Postscreen Whitelist / Blocklist
-#postscreen_access_list =        permit_mynetworks
-#                                cidr:/etc/postfix/postscreen_access
-#postscreen_blacklist_action = drop
+postscreen_access_list =        permit_mynetworks
+                                cidr:/etc/postfix/postscreen_access
+postscreen_blacklist_action = drop
 
 
 # Verbindungen beenden, wenn der fremde Server es zu eilig hat
-#postscreen_greet_action = drop
+postscreen_greet_action = drop
 
 
 ### DNS blocklists
-#postscreen_dnsbl_threshold = 2
-#postscreen_dnsbl_sites =    ix.dnsbl.manitu.net*2
-#                            zen.spamhaus.org*2
-#postscreen_dnsbl_action = drop
+postscreen_dnsbl_threshold = 2
+postscreen_dnsbl_sites =    ix.dnsbl.manitu.net*2
+                            zen.spamhaus.org*2
+postscreen_dnsbl_action = drop
 
 
 ##
 ## MySQL Abfragen
 ##
 
-#virtual_alias_maps = mysql:/etc/postfix/virtual/aliases.cf
-#virtual_mailbox_maps = mysql:/etc/postfix/virtual/accounts.cf
-#virtual_mailbox_domains = mysql:/etc/postfix/virtual/domains.cf
-#local_recipient_maps = $virtual_mailbox_maps
-
-##
-## Relay-Host
-##
-% if node.metadata.get('postfix', {}).get('relayhost', ''):
-relayhost = ${node.metadata['postfix']['relayhost']}
-% endif
+virtual_alias_maps = mysql:/etc/postfix/sql/aliases.cf
+virtual_mailbox_maps = mysql:/etc/postfix/sql/accounts.cf
+virtual_mailbox_domains = mysql:/etc/postfix/sql/domains.cf
+local_recipient_maps = $virtual_mailbox_maps
 
 
 ##
@@ -159,8 +147,8 @@ relayhost = ${node.metadata['postfix']['relayhost']}
 ### Maximale Größe der gesamten Mailbox (soll von Dovecot festgelegt werden, 0 = unbegrenzt)
 mailbox_size_limit = 0
 
-### Maximale Größe eingehender E-Mails in Bytes (50 MB)
-message_size_limit = ${node.metadata.get('postfix', {}).get('message_size_limit', 2) * 1024 * 1024}
+### Maximale Größe eingehender E-Mails in Bytes
+message_size_limit = ${max_msg_size}
 
 ### Keine System-Benachrichtigung für Benutzer bei neuer E-Mail
 biff = no
