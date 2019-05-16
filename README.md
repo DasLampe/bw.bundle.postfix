@@ -1,4 +1,10 @@
-Config:
+# Bundlewrap - Install Postfix
+
+## Dependencies
+- mySQL-Bundle (Not published yet)
+- [apt-Bundle](https://github.com/sHorst/bw.bundle.apt)
+
+## Config
 
 ```
 'postfix': {

@@ -5,15 +5,9 @@ global repo
 
 mysql_user = node.metadata.get('postfix', {}).get('database', {}).get('user', 'vmail')
 mysql_password = node.metadata.get('postfix', {}).get('database', {}).\
-    get('password', repo.libs.pw.get("mysql_{}_user_{}".format(mysql_user, node.name)))
+    get('password', repo.vault.password_for("mysql_{}_user_{}".format(mysql_user, node.name)))
 mysql_host = node.metadata.get('postfix', {}).get('database', {}).get('host', '127.0.0.1')
 mysql_db = node.metadata.get('postfix', {}).get('database', {}).get('db', 'vmail')
-
-
-pkg_apt = {
-    'postfix': {},
-    'postfix-mysql': {},
-}
 
 svc_systemv = {
     'postfix': {
