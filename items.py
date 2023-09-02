@@ -8,8 +8,7 @@ mysql_password = node.metadata.get('postfix', {}).get('database', {}). \
     get('password', repo.vault.password_for("mysql_{}_user_{}".format(mysql_user, node.name)))
 mysql_host = node.metadata.get('postfix', {}).get('database', {}).get('host', '127.0.0.1')
 mysql_db = node.metadata.get('postfix', {}).get('database', {}).get('db', 'vmail_bw')
-
-pkg = {
+pkg_apt = {
     'postfix': {
         'installed': True,
     },
@@ -153,13 +152,13 @@ actions['postmap_without_ptr'] = {
     'command': 'postmap /etc/postfix/without_ptr',
     'triggered': True,
     'needs': [
-        'pkg:postfix',
+        'pkg_apt:postfix',
     ],
 }
 
 actions['generate_aliases.db'] = {
     'command': 'newaliases',
     'needs': [
-        'pkg:postfix',
+        'pkg_apt:postfix',
     ],
 }
