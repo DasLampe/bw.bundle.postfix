@@ -3,11 +3,12 @@ global node
 # noinspection PyGlobalUndefined
 global repo
 
-mysql_user = node.metadata.get('postfix', {}).get('database', {}).get('user', 'vmail_bw')
-mysql_password = node.metadata.get('postfix', {}).get('database', {}). \
-    get('password', repo.vault.password_for("mysql_{}_user_{}".format(mysql_user, node.name)))
-mysql_host = node.metadata.get('postfix', {}).get('database', {}).get('host', '127.0.0.1')
-mysql_db = node.metadata.get('postfix', {}).get('database', {}).get('db', 'vmail_bw')
+db_config = node.metadata.get('postfix', {}).get('database', {})
+mysql_user = db_config.get('user', 'vmail_bw')
+mysql_password = db_config.get('password', repo.vault.password_for("mysql_{}_user_{}".format(mysql_user, node.name)))
+mysql_host = db_config.get('host', '127.0.0.1')
+mysql_db = db_config.get('db', 'vmail_bw')
+
 pkg_apt = {
     'postfix': {
         'installed': True,
@@ -19,43 +20,6 @@ pkg_apt = {
 actions = {}
 files = {}
 directories = {}
-
-####
-# Create MySQL Structure
-####
-
-# Create Database and user
-if mysql_host == 'localhost' or mysql_host == '127.0.0.1':
-    mysql_users = {
-        mysql_user: {
-            'password': mysql_password,
-            'hosts': ['127.0.0.1', '::1', 'localhost'].copy(),
-            'db_priv': {
-                mysql_db: 'all',
-            },
-        },
-    }
-
-    mysql_dbs = {
-        mysql_db: {
-            'triggers': {
-                'action:deploy_postfix_mysql_structure',
-            },
-        },
-    }
-
-files['/tmp/structure.sql'] = {
-    'source': 'structure.sql',
-}
-
-actions['deploy_postfix_mysql_structure'] = {
-    'command':  'mysql -u {mysql_user} -p{mysql_password} {mysql_db} < /tmp/structure.sql && rm /tmp/structure.sql'
-                .format(mysql_user=mysql_user, mysql_password=mysql_password, mysql_db=mysql_db),
-    'needs': [
-        'file:/tmp/structure.sql',
-    ],
-    'triggered': True,
-}
 
 for file in ['tls-policy.cf', 'sender-login-maps.cf', 'recipient-access.cf', 'domains.cf', 'aliases.cf', 'accounts.cf']:
     files['/etc/postfix/sql/{}'.format(file)] = {
