@@ -4,6 +4,7 @@ global node
 defaults = {
     'postfix': {
         'mynetworks': [],
+        'inet_interfaces': ['all'],
         'myhostname': node.hostname,
         'mydestination': node.hostname,
         'max_queue_lifetime': '1h',

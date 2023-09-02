@@ -72,6 +72,7 @@ files['/etc/postfix/main.cf'] = {
     'content_type': 'mako',
     'context': {
         'mynetworks': config.get('mynetworks'),
+        'inet_interfaces': config.get('inet_interfaces'),
         'myhostname': config.get('myhostname'),
         'mydestination': config.get('mydestination'),
         'max_queue_lifetime': config.get('max_queue_lifetime'),
