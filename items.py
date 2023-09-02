@@ -3,11 +3,7 @@ global node
 # noinspection PyGlobalUndefined
 global repo
 
-db_config = node.metadata.get('postfix', {}).get('database', {})
-mysql_user = db_config.get('user', 'vmail_bw')
-mysql_password = db_config.get('password', repo.vault.password_for("mysql_{}_user_{}".format(mysql_user, node.name)))
-mysql_host = db_config.get('host', '127.0.0.1')
-mysql_db = db_config.get('db', 'vmail_bw')
+db_config = node.metadata.get('postfix').get('database')
 
 pkg_apt = {
     'postfix': {
@@ -26,10 +22,10 @@ for file in ['tls-policy.cf', 'sender-login-maps.cf', 'recipient-access.cf', 'do
         'source': 'etc/postfix/sql/{}'.format(file),
         'content_type': 'mako',
         'context': {
-            'mysql_user': mysql_user,
-            'mysql_password': mysql_password,
-            'mysql_db': mysql_db,
-            'mysql_host': mysql_host,
+            'mysql_user': db_config.get('user'),
+            'mysql_password': db_config.get('password'),
+            'mysql_db': db_config.get('db'),
+            'mysql_host': db_config.get('host'),
         },
         'owner': 'postfix',
         'group': 'postfix',

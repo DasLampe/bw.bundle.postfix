@@ -2,7 +2,14 @@ global repo
 global node
 
 defaults = {
-    'postfix': {},
+    'postfix': {
+        'database': {
+            'user': 'vmail_bw',
+            'password': repo.vault.password_for("mysql_{}_user_{}".format('vmail_bw', node.name)),
+            'host': 'localhost',
+            'db': 'vmail_bw',
+        }
+    },
 }
 
 @metadata_reactor
