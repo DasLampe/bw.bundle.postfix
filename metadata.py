@@ -3,6 +3,21 @@ global node
 
 defaults = {
     'postfix': {
+        'mynetworks': [],
+        'myhostname': node.hostname,
+        'mydestination': node.hostname,
+        'max_queue_lifetime': '1h',
+        'bounce_queue_lifetime': '1h',
+        'max_backoff_time': '15m',
+        'min_backoff_time': '5m',
+        'queue_run_delay': '5m',
+        'max_msg_size': 52428800,
+
+        'ssl_cert': f'/etc/letsencrypt/{node.hostname}/live/fullchain.pem',
+        'ssl_key': f'/etc/letsencrypt/{node.hostname}/live/privkey.pem',
+
+        'rspamd_enabled': node.has_bundle('rspamd'),
+
         'database': {
             'user': 'vmail_bw',
             'password': repo.vault.password_for("mysql_{}_user_{}".format('vmail_bw', node.name)),

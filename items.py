@@ -3,7 +3,8 @@ global node
 # noinspection PyGlobalUndefined
 global repo
 
-db_config = node.metadata.get('postfix').get('database')
+config = node.metadata.get('postfix')
+db_config = config.get('database')
 
 pkg_apt = {
     'postfix': {
@@ -66,24 +67,22 @@ for file in ['master.cf', 'main.cf.proto', 'master.cf.proto']:
     }
 
 # Generate Files
-config = node.metadata.get('postfix', {})
-
 files['/etc/postfix/main.cf'] = {
     'source': 'etc/postfix/main.cf',
     'content_type': 'mako',
     'context': {
-        'mynetworks': config.get('mynetworks', []),
-        'myhostname': node.hostname,
-        'mydestination': config.get('mydestination', node.hostname),
-        'max_queue_lifetime': config.get('max_queue_lifetime', '1h'),
-        'bounce_queue_lifetime': config.get('bounce_queue_lifetime', '1h'),
-        'max_backoff_time': config.get('max_backoff_time', '15m'),
-        'min_backoff_time': config.get('min_backoff_time', '5m'),
-        'queue_run_delay': config.get('queue_run_delay', '5m'),
-        'smtpd_tls_cert_file': config.get('ssl_cert', '/etc/letsencrypt/{}/live/fullchain.pem'.format(node.hostname)),
-        'smtpd_tls_key_file': config.get('ssl_key', '/etc/letsencrypt/{}/live/privkey.pem'.format(node.hostname)),
-        'rspamd': node.has_bundle('rspamd'),
-        'max_msg_size': config.get('max_msg_size', 52428800),
+        'mynetworks': config.get('mynetworks'),
+        'myhostname': config.get('myhostname'),
+        'mydestination': config.get('mydestination'),
+        'max_queue_lifetime': config.get('max_queue_lifetime'),
+        'bounce_queue_lifetime': config.get('bounce_queue_lifetime'),
+        'max_backoff_time': config.get('max_backoff_time'),
+        'min_backoff_time': config.get('min_backoff_time'),
+        'queue_run_delay': config.get('queue_run_delay'),
+        'smtpd_tls_cert_file': config.get('ssl_cert'),
+        'smtpd_tls_key_file': config.get('ssl_key'),
+        'rspamd': config.get('rspamd_enabled'),
+        'max_msg_size': config.get('max_msg_size'),
     }
 }
 
