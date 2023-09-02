@@ -14,6 +14,18 @@ pkg_apt = {
         'installed': True,
     },
 }
+
+svc_systemd = {
+    'postfix': {
+        'enabled': True,
+        'running': True,
+        'needs': [
+            'pkg_apt:postfix',
+        ],
+    },
+}
+
+
 actions = {}
 files = {}
 directories = {}
@@ -84,11 +96,17 @@ files['/etc/postfix/main.cf'] = {
         'smtpd_tls_key_file': config.get('ssl_key'),
         'rspamd': config.get('rspamd_enabled'),
         'max_msg_size': config.get('max_msg_size'),
-    }
+    },
+    'triggers': [
+        'svc_systemd:postfix:restart',
+    ]
 }
 
 files['/etc/postfix/master.cf'] = {
     'source': 'etc/postfix/master.cf',
+    'triggers': [
+        'svc_systemd:postfix:restart',
+    ]
 }
 
 files['/etc/postfix/submission_header_cleanup'] = {
