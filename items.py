@@ -20,7 +20,7 @@ svc_systemd = {
         'enabled': True,
         'running': True,
         'needs': [
-            'pkg_apt:postfix',
+            'pkg_apt:',
         ],
     },
 }
